@@ -28,7 +28,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=1000)
+        self.memory = deque(maxlen=2000)
         self.gamma = 0.99  # Discount factor
         self.epsilon = 1.0  # Exploration rate
         self.epsilon_min = 0.01
@@ -105,7 +105,7 @@ def encode_state(player_hand, dealer_revealed_card, card_counts):
     return state
 
 
-def train(agent, episodes=2000):
+def train(agent, episodes=3000):
     deck = CardCountingDeck()
     score = Score()
     
