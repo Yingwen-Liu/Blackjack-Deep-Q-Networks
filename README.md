@@ -1,6 +1,6 @@
 # Blackjack-Deep-Q-Networks
 
-The win ratio is around 43%. Need more fine-tuning for further use
+The win ratio is around 43% while using 2 decks of cards. Need more fine-tuning for further use
 
 - Run `train.py` to train and test the model
 - Run `blackjack.py` to play Blackjack manually
