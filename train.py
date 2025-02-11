@@ -89,7 +89,7 @@ class DQNAgent:
             print("Model file not found. Starting with a new model.")
 
 
-def encode_state(player_hand, dealer_revealed_card, card_counts):
+def encode_state(player_hand, dealer_revealed_card, probabilities):
     """
     Encode the game state as a feature vector using the Hand class to compute points.
     """
@@ -100,7 +100,7 @@ def encode_state(player_hand, dealer_revealed_card, card_counts):
     dealer_points = list(dealer_hand.points)
 
     # Flatten the points and discard values for the state representation
-    state = [0]*(2-len(player_points)) + player_points + [0]*(2-len(dealer_points)) + dealer_points + card_counts # 2 + 2 + 10
+    state = [0]*(2-len(player_points)) + player_points + [0]*(2-len(dealer_points)) + dealer_points + probabilities # 2 + 2 + 10
     
     return state
 
@@ -122,7 +122,7 @@ def train(agent, episodes=3000):
         dealer_revealed_card = dealer_hand.hand[0]
         deck.update_counts(player_hand.hand + [dealer_revealed_card])
 
-        state = encode_state(player_hand, dealer_revealed_card, deck.card_counts)
+        state = encode_state(player_hand, dealer_revealed_card, deck.probabilities)
 
         done = False
         while not done:
@@ -146,7 +146,7 @@ def train(agent, episodes=3000):
                 reward = is_win(player_hand.points, dealer_hand.points)
                 done = True
 
-            next_state = encode_state(player_hand, dealer_revealed_card, deck.card_counts)
+            next_state = encode_state(player_hand, dealer_revealed_card, deck.probabilities)
             agent.remember(state, action, reward, next_state, done)
             state = next_state
 
@@ -186,7 +186,7 @@ def test(agent, episodes=10000):
         dealer_revealed_card = dealer_hand.hand[0]
         deck.update_counts(player_hand.hand + [dealer_revealed_card])
 
-        state = encode_state(player_hand, dealer_revealed_card, deck.card_counts)
+        state = encode_state(player_hand, dealer_revealed_card, deck.probabilities)
         
         while True:
             action = agent.act(state)
@@ -216,7 +216,7 @@ def test(agent, episodes=10000):
                     score.display()
                 break
             
-            state = encode_state(player_hand, dealer_revealed_card, deck.card_counts)
+            state = encode_state(player_hand, dealer_revealed_card, deck.probabilities)
     print(f"Episode {episodes} ", end='')
     score.display()
 
@@ -224,7 +224,9 @@ if __name__ == "__main__":
     state_size = 14
     action_size = 2  # 2 actions: hit or stand
     
-    torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    print(f"Train on {torch.device()}")
     
     agent = DQNAgent(state_size, action_size)
     agent.load_model()    

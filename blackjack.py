@@ -33,7 +33,9 @@ class CardCountingDeck(Deck):
         self.amount = amount
         self.draw_pile = []
         self.discard_pile = []
+        
         self.card_counts = [4*amount for i in range(1, 10)] + [16*amount]
+        self.card_sum = 52 * amount
         
         self.create()
     
@@ -45,6 +47,7 @@ class CardCountingDeck(Deck):
             random.shuffle(self.draw_pile)
             
             self.card_counts = [4*self.amount for i in range(1, 10)] + [16*self.amount]
+            self.card_sum = 52 * self.amount
         return self.draw_pile.pop()
     
     def update_counts(self, hand):
@@ -56,6 +59,11 @@ class CardCountingDeck(Deck):
             else:
                 idx = int(card) - 1
             self.card_counts[idx] -= 1
+            self.card_sum -= 1
+    
+    @property
+    def probabilities(self):
+        return [i / self.card_sum for i in self.card_counts]
 
 
 class Hand:
