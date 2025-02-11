@@ -28,7 +28,7 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
+        self.memory = deque(maxlen=1000)
         self.gamma = 0.99  # Discount factor
         self.epsilon = 1.0  # Exploration rate
         self.epsilon_min = 0.01
@@ -105,7 +105,7 @@ def encode_state(player_hand, dealer_revealed_card, card_counts):
     return state
 
 
-def train(agent, episodes=1000):
+def train(agent, episodes=2000):
     deck = CardCountingDeck()
     score = Score()
     
@@ -157,7 +157,7 @@ def train(agent, episodes=1000):
                 deck.update_counts(dealer_hand.hand[1:])
                 
                 score.update(reward)
-                if episode % 100 == 0:
+                if episode % 500 == 0:
                     print(f"Episode {episode} ", end='')
                     score.display()
                 break
@@ -169,7 +169,7 @@ def train(agent, episodes=1000):
     agent.save_model()
 
 
-def inference(agent, episodes=10000):
+def test(agent, episodes=10000):
     deck = CardCountingDeck()
     score = Score()
     
@@ -224,11 +224,11 @@ if __name__ == "__main__":
     state_size = 14
     action_size = 2  # 2 actions: hit or stand
     
-    torch.device("cuda")
+    torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     agent = DQNAgent(state_size, action_size)
     agent.load_model()    
     train(agent)
     
     print("\nTest:")
-    inference(agent)
+    test(agent)
