@@ -39,6 +39,10 @@ class CardCountingDeck(Deck):
         
         self.create()
     
+    @property
+    def probabilities(self):
+        return [i / self.card_sum for i in self.card_counts]
+    
     def deal(self, shuffle=False):
         # Draw a card from the draw pile
         if len(self.draw_pile) < 1 or shuffle:
@@ -60,29 +64,26 @@ class CardCountingDeck(Deck):
                 idx = int(card) - 1
             self.card_counts[idx] -= 1
             self.card_sum -= 1
-    
-    @property
-    def probabilities(self):
-        return [i / self.card_sum for i in self.card_counts]
 
 
 class Hand:
     def __init__(self):
         self.hand = []
-        self.points = {0}
+        self.points = [0]
         
     def hit(self, card):
         # Put the card to the hand and compute the points
         self.hand.append(card)
         
-        if card == 'T':
-            total_points = [x + 10 for x in self.points]
-        elif card == 'A':
-            total_points = [x + 1 for x in self.points] + [x + 11 for x in self.points]
-            total_points.sort()
+        if card == 'A':
+            # This implementation is not safe but faster. It assumes self.points is ordered and always have <=2 items
+            self.points = [self.points[0] + 1]
+            if self.points[0] + 10 <= 21:
+                self.points.append(self.points[0] + 10)
         else:
-            total_points = [x + int(card) for x in self.points]
-        self.points = {p for p in total_points if p <= 21} or {min(total_points)}
+            value = 10 if card == 'T' else int(card)
+            new_points = [p + value for p in self.points]
+            self.points = [p for p in new_points if p <= 21] or [min(new_points)]
     
     def display(self):
         # Display the hand and points
@@ -93,14 +94,13 @@ class Score:
     def  __init__(self):
         self.score = [0, 0, 0] # [Ties, Wins, Losses]
     
+    @property
+    def win_ratio(self):
+        return 0 if self.score[1] == 0 else self.score[1]/(self.score[1] + self.score[2]) * 100
+    
     def display(self):
-        # Diplay the scores
-        if self.score[1] == 0:
-            win_lose_rate = 0
-        else:
-            win_lose_rate = round(self.score[1]/(self.score[1] + self.score[2]) * 100)
-        print('Stat: Win-%i Lose-%i Tie-%i | Win Rate: %i%%'
-              %(self.score[1], self.score[2], self.score[0], win_lose_rate))
+        print('Stat: Win-%i Lose-%i Tie-%i | Win Ratio: %.1f%%'
+              %(self.score[1], self.score[2], self.score[0], self.win_ratio))
 
     def update(self, idx):
         # Update the scores
@@ -148,7 +148,7 @@ def main(shuffle=False):
         
         # Player's turn
         while True:
-            choice = input("Do you want to (h)it or (s)tand?").lower()
+            choice = input("Do you want to (h)it or (s)tand?\n>>> ").lower()
             if choice == 'h':
                 player_hand.hit(deck.deal(shuffle))
                 player_hand.display()
