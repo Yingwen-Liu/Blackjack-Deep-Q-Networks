@@ -10,6 +10,7 @@ The win ratio is around 43% while using 2 decks of cards. Not able to split.
 
 ## Prerequisites
 - Pytorch
+- tqdm
 - Cuda
 
 ## To-Do
