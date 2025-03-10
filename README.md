@@ -15,7 +15,7 @@ The win ratio is around 43% while using 2 decks of cards. Not able to split.
 
 ## `train_shuffle.py`
 - Shuffle the deck after every game, meaning the card counting is useless
-- Win rate of 43%
+- Win rate of ~43.5% (Even better than counting-card model. Why??)
 
 ## Prerequisites
 - Pytorch
