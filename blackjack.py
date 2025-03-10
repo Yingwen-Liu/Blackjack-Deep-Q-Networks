@@ -1,10 +1,11 @@
 import random
 
 class Deck:
-    def __init__(self, amount=2):
+    def __init__(self, amount=2, shuffle=False):
         self.amount = amount
         self.draw_pile = []
         self.discard_pile = []
+        self.shuffle = shuffle
         
         self.create()
         
@@ -14,10 +15,10 @@ class Deck:
         self.draw_pile = a_deck * self.amount
         random.shuffle(self.draw_pile)
 
-    def deal(self, shuffle=False):
+    def deal(self):
         # Draw a card from the draw pile
         # shuffle: add the discard pile to the draw pile after each deal
-        if len(self.draw_pile) < 1 or shuffle:
+        if len(self.draw_pile) < 1 or self.shuffle:
             self.draw_pile += self.discard_pile
             self.discard_pile = []
             random.shuffle(self.draw_pile)
@@ -29,23 +30,19 @@ class Deck:
 
 
 class CardCountingDeck(Deck):
-    def __init__(self, amount=2):
-        self.amount = amount
-        self.draw_pile = []
-        self.discard_pile = []
+    def __init__(self, amount=2, shuffle=False):
+        super().__init__(amount=amount, shuffle=shuffle)
         
-        self.card_counts = [4*amount for i in range(1, 10)] + [16*amount]
+        self.card_counts = [4*amount for _ in range(1, 10)] + [16*amount]
         self.card_sum = 52 * amount
-        
-        self.create()
     
     @property
     def probabilities(self):
         return [i / self.card_sum for i in self.card_counts]
     
-    def deal(self, shuffle=False):
+    def deal(self):
         # Draw a card from the draw pile
-        if len(self.draw_pile) < 1 or shuffle:
+        if len(self.draw_pile) < 1 or self.shuffle:
             self.draw_pile += self.discard_pile
             self.discard_pile = []
             random.shuffle(self.draw_pile)
@@ -127,7 +124,7 @@ def is_win(player_points, dealer_points):
     else:
         return 0  # Tie  
 
-def main(shuffle=False):
+def main():
     deck = Deck()
     score = Score()
     
@@ -138,10 +135,10 @@ def main(shuffle=False):
         dealer_hand = Hand()
         
         # Initial deal
-        player_hand.hit(deck.deal(shuffle))
-        player_hand.hit(deck.deal(shuffle))
-        dealer_hand.hit(deck.deal(shuffle))
-        dealer_hand.hit(deck.deal(shuffle))
+        player_hand.hit(deck.deal())
+        player_hand.hit(deck.deal())
+        dealer_hand.hit(deck.deal())
+        dealer_hand.hit(deck.deal())
         
         print("Dealer's hand: [Hidden, " + dealer_hand.hand[1] + "]")
         player_hand.display()
@@ -150,7 +147,7 @@ def main(shuffle=False):
         while True:
             choice = input("Do you want to (h)it or (s)tand?\n>>> ").lower()
             if choice == 'h':
-                player_hand.hit(deck.deal(shuffle))
+                player_hand.hit(deck.deal())
                 player_hand.display()
                 if max(player_hand.points) > 21:
                     print("Bust! You lose.")
@@ -169,7 +166,7 @@ def main(shuffle=False):
         # Dealer's turn
         if max(player_hand.points) <= 21:
             while max(dealer_hand.points) < max(player_hand.points):
-                dealer_hand.hit(deck.deal(shuffle))
+                dealer_hand.hit(deck.deal())
         print("Dealer's final hand:")
         dealer_hand.display()
         

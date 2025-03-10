@@ -83,14 +83,14 @@ class DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
     
-    def save_model(self, path="blackjack_dqn.pth"):
+    def save_model(self, path="blackjack_count_dqn.pth"):
         torch.save({
             'model_state_dict': self.model.state_dict(),
             'epsilon': self.epsilon
         }, path)
         print(f"Model saved to {path}")
     
-    def load_model(self, path="blackjack_dqn.pth"):
+    def load_model(self, path="blackjack_count_dqn.pth"):
         import os
         if os.path.exists(path):
             checkpoint = torch.load(path)
